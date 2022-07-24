@@ -3,6 +3,27 @@ const books = require('./book');
 const ValidationError = require('./validationError');
 const validateStore = require('./validators');
 
+const getBooks = () => {
+  const filteredBook = [];
+
+  books.forEach((book) => {
+    const validBook = {
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher,
+    };
+
+    filteredBook.push(validBook);
+  });
+
+  return {
+    status: 'success',
+    data: {
+      books: filteredBook,
+    },
+  };
+};
+
 const storeBook = (request, h) => {
   let response;
 
@@ -70,5 +91,6 @@ const storeBook = (request, h) => {
 };
 
 module.exports = {
+  getBooks,
   storeBook,
 };
