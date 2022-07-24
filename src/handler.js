@@ -3,27 +3,6 @@ const books = require('./book');
 const ValidationError = require('./validationError');
 const validateStore = require('./validators');
 
-const getBooks = () => {
-  const filteredBook = [];
-
-  books.forEach((book) => {
-    const validBook = {
-      id: book.id,
-      name: book.name,
-      publisher: book.publisher,
-    };
-
-    filteredBook.push(validBook);
-  });
-
-  return {
-    status: 'success',
-    data: {
-      books: filteredBook,
-    },
-  };
-};
-
 const storeBook = (request, h) => {
   let response;
 
@@ -43,8 +22,8 @@ const storeBook = (request, h) => {
 
     const id = nanoid(16);
     const finished = pageCount === readPage;
-    const createdAt = new Date().toISOString;
-    const updatedAt = createdAt;
+    const insertedAt = new Date().toISOString();
+    const updatedAt = insertedAt;
 
     const newBook = {
       name,
@@ -57,7 +36,7 @@ const storeBook = (request, h) => {
       finished,
       reading,
       id,
-      createdAt,
+      insertedAt,
       updatedAt,
     };
 
@@ -90,7 +69,58 @@ const storeBook = (request, h) => {
   return response;
 };
 
+const getBooks = () => {
+  const filteredBook = [];
+
+  books.forEach((book) => {
+    const validBook = {
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher,
+    };
+
+    filteredBook.push(validBook);
+  });
+
+  return {
+    status: 'success',
+    data: {
+      books: filteredBook,
+    },
+  };
+};
+
+const getBookById = (request, h) => {
+  let response;
+  const { bookId } = request.params;
+  const book = books.find((findingBook) => findingBook.id === bookId);
+
+  if (book) {
+    response = h.response({
+      status: 'success',
+      data: {
+        book,
+      },
+    });
+
+    response.code(200);
+  } else {
+    response = h.response({
+      status: 'fail',
+      message: 'Buku tidak ditemukan',
+      data: {
+        book,
+      },
+    });
+
+    response.code(404);
+  }
+
+  return response;
+};
+
 module.exports = {
-  getBooks,
   storeBook,
+  getBooks,
+  getBookById,
 };
