@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const { nanoid } = require('nanoid');
 const books = require('./book');
 const ValidationError = require('./validationError');
@@ -69,23 +70,49 @@ const storeBook = (request, h) => {
   return response;
 };
 
-const getBooks = () => {
-  const filteredBook = [];
+const getBooks = (request) => {
+  let currentBooks = books;
+  const validBooks = [];
+  const {
+    name,
+    reading,
+    finished,
+  } = request.query;
 
-  books.forEach((book) => {
-    const validBook = {
+  if (reading !== undefined) {
+    if (reading === '1') {
+      currentBooks = books.filter((book) => book.reading);
+    } else if (reading === '0') {
+      currentBooks = books.filter((book) => !book.reading);
+    }
+  }
+
+  if (finished !== undefined) {
+    if (finished === '1') {
+      currentBooks = books.filter((book) => book.finished);
+    } else if (finished === '0') {
+      currentBooks = books.filter((book) => !book.finished);
+    }
+  }
+
+  if (name) {
+    currentBooks = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+  }
+
+  currentBooks.forEach((book) => {
+    const validBookFormat = {
       id: book.id,
       name: book.name,
       publisher: book.publisher,
     };
 
-    filteredBook.push(validBook);
+    validBooks.push(validBookFormat);
   });
 
   return {
     status: 'success',
     data: {
-      books: filteredBook,
+      books: validBooks,
     },
   };
 };
