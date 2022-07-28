@@ -1,13 +1,31 @@
+const books = require('./book');
 const ValidationError = require('./validationError');
 
-const validateStore = (payload) => {
-  if (!payload.name) {
+const validateStore = (request) => {
+  if (!request.payload.name) {
     throw new ValidationError('Gagal menambahkan buku. Mohon isi nama buku');
   }
 
-  if (payload.readPage > payload.pageCount) {
+  if (request.payload.readPage > request.payload.pageCount) {
     throw new ValidationError('Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount');
   }
 };
 
-module.exports = validateStore;
+const validateUpdate = (request) => {
+  if (!request.payload.name) {
+    throw new ValidationError('Gagal memperbarui buku. Mohon isi nama buku');
+  }
+
+  if (request.payload.readPage > request.payload.pageCount) {
+    throw new ValidationError('Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount');
+  }
+
+  if (books.findIndex((book) => book.id === request.params.bookId) === -1) {
+    throw new ValidationError('Gagal memperbarui buku. Id tidak ditemukan', 404);
+  }
+};
+
+module.exports = {
+  validateStore,
+  validateUpdate,
+};

@@ -1,13 +1,13 @@
 const { nanoid } = require('nanoid');
 const books = require('./book');
 const ValidationError = require('./validationError');
-const validateStore = require('./validators');
+const { validateStore, validateUpdate } = require('./validators');
 
 const storeBook = (request, h) => {
   let response;
 
   try {
-    validateStore(request.payload);
+    validateStore(request);
 
     const {
       name,
@@ -62,7 +62,7 @@ const storeBook = (request, h) => {
         message: error.message,
       });
 
-      response.code(400);
+      response.code(error.code);
     }
   }
 
@@ -119,8 +119,65 @@ const getBookById = (request, h) => {
   return response;
 };
 
+const updateBook = (request, h) => {
+  const { bookId } = request.params;
+  const updatedAt = new Date().toISOString();
+  const {
+    name,
+    year,
+    author,
+    summary,
+    publisher,
+    pageCount,
+    readPage,
+    reading,
+  } = request.payload;
+
+  let response;
+
+  try {
+    validateUpdate(request);
+
+    const index = books.findIndex((book) => book.id === bookId);
+
+    if (index !== -1) {
+      books[index] = {
+        ...books[index],
+        name,
+        year,
+        author,
+        summary,
+        publisher,
+        pageCount,
+        readPage,
+        reading,
+        updatedAt,
+      };
+    }
+
+    response = h.response({
+      status: 'success',
+      message: 'Buku berhasil diperbarui',
+    });
+
+    response.code(200);
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      response = h.response({
+        status: 'fail',
+        message: error.message,
+      });
+
+      response.code(error.code);
+    }
+  }
+
+  return response;
+};
+
 module.exports = {
   storeBook,
   getBooks,
   getBookById,
+  updateBook,
 };
