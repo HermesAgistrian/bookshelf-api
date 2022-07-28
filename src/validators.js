@@ -25,7 +25,14 @@ const validateUpdate = (request) => {
   }
 };
 
+const validateDelete = (request) => {
+  if (books.findIndex((book) => book.id === request.params.bookId) === -1) {
+    throw new ValidationError('Buku gagal dihapus. Id tidak ditemukan', 404);
+  }
+};
+
 module.exports = {
   validateStore,
   validateUpdate,
+  validateDelete,
 };

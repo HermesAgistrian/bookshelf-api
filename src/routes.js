@@ -1,5 +1,5 @@
 const {
-  storeBook, getBooks, getBookById, updateBook,
+  storeBook, getBooks, getBookById, updateBook, deleteBook,
 } = require('./handler');
 
 const routes = [
@@ -22,6 +22,11 @@ const routes = [
     method: 'PUT',
     path: '/books/{bookId}',
     handler: updateBook,
+  },
+  {
+    method: 'DELETE',
+    path: '/books/{bookId}',
+    handler: deleteBook,
   },
 ];
 

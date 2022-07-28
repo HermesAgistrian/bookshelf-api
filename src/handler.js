@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 const books = require('./book');
 const ValidationError = require('./validationError');
-const { validateStore, validateUpdate } = require('./validators');
+const { validateStore, validateUpdate, validateDelete } = require('./validators');
 
 const storeBook = (request, h) => {
   let response;
@@ -175,9 +175,41 @@ const updateBook = (request, h) => {
   return response;
 };
 
+const deleteBook = (request, h) => {
+  let response;
+  const { bookId } = request.params;
+
+  try {
+    validateDelete(request);
+
+    const index = books.findIndex((book) => book.id === bookId);
+
+    if (index !== -1) {
+      books.splice(index, 1);
+    }
+
+    response = h.response({
+      status: 'success',
+      message: 'Buku berhasil dihapus',
+    });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      response = h.response({
+        status: 'fail',
+        message: error.message,
+      });
+
+      response.code(error.code);
+    }
+  }
+
+  return response;
+};
+
 module.exports = {
   storeBook,
   getBooks,
   getBookById,
   updateBook,
+  deleteBook,
 };
